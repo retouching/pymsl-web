@@ -50,13 +50,13 @@ http = requests.Session(impersonate="chrome")
 
 with MSLClient(configuration, http=http) as client:
     client.handshake()
-    answer = client.request(b'{"version":2}')
+    manifest = client.request({"version": 2, "url": "/manifest"})
     state = client.session.export().model_dump_json()
 
 with MSLClient(configuration, http=http, session=MSLSession.restore_json(state)) as client:
     if client.session.expired:
         client.handshake()
-    answer = client.request(b'{"version":2}')
+    manifest = client.request({"version": 2, "url": "/manifest"})
 ```
 
 `server_public_keys` takes the RSA public keys of the server, PEM or Base64 DER: the handshake answer and the errors

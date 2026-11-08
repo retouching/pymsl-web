@@ -65,14 +65,19 @@ changes nothing in the session.
 ## Requests
 
 ```python
-answer: bytes = client.request(data, url="https://example.com/msl/licence", params={"reqName": "license"})
+manifest = client.request({"version": 2, "url": "/manifest"}, params={"reqName": "manifest"})
+licence: bytes = client.raw_request(data, url="https://example.com/msl/licence", params={"reqName": "license"})
 ```
 
-A request sends `data` encrypted and signed with the session keys, compressed as configured, with the service
-tokens the server gave and the user: the `userauthdata` of `user_authentication` until the server gives a user ID
-token, then that token alone. It gives back the joined data of the answer. Reading the JSON of the service, and its
-own `"error"` key, is the application's work. The message ID moves on by one after each request the server
-answered, even when the answer is an error; it stays when the server could not be reached.
+`request` sends a JSON payload, written compact (`{"version":2}`), and gives back the JSON of the answer; an answer
+that is not JSON raises `MSLMessageError`. `raw_request` sends bytes and gives back bytes, for data that is not JSON.
+`JSONValue` types the payload and the answer.
+
+Both send the data encrypted and signed with the session keys, compressed as configured, with the service tokens the
+server gave and the user: the `userauthdata` of `user_authentication` until the server gives a user ID token, then
+that token alone. Reading the answer of the service, and its own `"error"` key, is the application's work. The
+message ID moves on by one after each request the server answered, even when the answer is an error; it stays when
+the server could not be reached.
 
 ## Session
 
