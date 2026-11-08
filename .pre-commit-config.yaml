@@ -1,0 +1,78 @@
+# The checks of every commit and every push. Enabled once per clone: `uv run pre-commit install`.
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.5.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, refactor, test, docs, build, chore]
+
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+      - id: lint-imports
+        name: lint-imports
+        entry: uv run lint-imports
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+      - id: push-ruff-check
+        name: ruff check (whole repository)
+        entry: uv run ruff check .
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: push-ruff-format
+        name: ruff format --check (whole repository)
+        entry: uv run ruff format --check .
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: push-mypy
+        name: mypy (whole repository)
+        entry: uv run mypy
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: push-lint-imports
+        name: lint-imports (whole repository)
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: pytest
+        name: unit tests
+        entry: sh -c 'uv run pytest; code=$?; [ $code -eq 5 ] && exit 0; exit $code'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]

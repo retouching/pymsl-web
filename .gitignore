@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.import_linter_cache/
+
+# Local files that never belong in the repository
+CLAUDE.local.md
+.env
+/.claude/settings.local.json
+/.claude/tmp/
+
+# Specs and plans of the superpowers skills, kept outside the repository
+docs/superpowers/
+
+# The temporary folders of the e2e tests (tests/e2e/conftest.py)
+/.e2e-tmp/

@@ -1,0 +1,103 @@
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14.0"]
+build-backend = "uv_build"
+
+[project]
+name = "pymsl-web"
+version = "0.1.0"
+description = "Python client for Netflix's Message Security Layer (MSL), web player flow"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "cryptography==50.0.2",
+    "curl-cffi>=0.17.0,<0.18",
+    "pydantic>=2.14.1,<3",
+]
+
+[tool.uv]
+exclude-newer = "1 week"
+
+[tool.uv.build-backend]
+module-name = "pymsl_web"
+module-root = ""
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+
+[tool.ruff.lint]
+# TC004: a name imported under TYPE_CHECKING and used at run time;
+# PGH004: a noqa without its code;
+# TID251: the dataclasses module (a dataclasses.replace on a pydantic model passes mypy and fails at run time).
+select = ["E", "W", "F", "I", "B", "UP", "S", "SIM", "RUF", "PT", "SLF", "TC004", "PGH004", "TID251"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"dataclasses".msg = "Use a pydantic model (CLAUDE.md, Rules of the code)."
+"subprocess.run".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.Popen".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.call".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.check_call".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.check_output".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.getoutput".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.getstatusoutput".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"os.system".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"os.popen".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"asyncio.create_subprocess_exec".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"asyncio.create_subprocess_shell".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S603", "S607"]
+"tests/e2e/stack.py" = ["TID251"]
+
+[tool.mypy]
+python_version = "3.14"
+files = ["pymsl_web", "tests"]
+strict = true
+warn_unreachable = true
+disallow_any_unimported = true
+pretty = true
+show_error_codes = true
+
+[tool.importlinter]
+root_packages = ["pymsl_web", "tests"]
+
+[[tool.importlinter.contracts]]
+name = "the layers of pymsl_web"
+type = "layers"
+layers = [
+    "(pymsl_web.client)",
+    "(pymsl_web.transport) | (pymsl_web.session)",
+    "(pymsl_web.entityauth) | (pymsl_web.userauth) | (pymsl_web.keyexchange) | (pymsl_web.messages)",
+    "(pymsl_web.tokens)",
+    "(pymsl_web.crypto) | (pymsl_web.compression)",
+    "(pymsl_web.utils)",
+]
+exhaustive = false
+
+[tool.pytest]
+minversion = "9.0"
+# `uv run pytest` runs the unit tests alone, without Docker; the e2e tests start a throwaway Docker stack of their
+# own: `uv run pytest tests/e2e`.
+testpaths = ["tests/unit"]
+tmp_path_retention_policy = "none"
+markers = ["e2e: runs against the fake MSL server of docker/compose.e2e.yaml"]
+addopts = ["-ra"]
+strict = true
+filterwarnings = [
+    "error",
+    # pytest-socket warns when it builds a SocketBlockedError, which the guard of tests/unit/conftest.py
+    # raises on purpose.
+    "ignore:A test tried to use socket\\.:UserWarning:pytest_socket",
+]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.170.14",
+    "import-linter>=2.15",
+    "mypy>=2.4.0,<3.0.0",
+    "pre-commit>=4.7.0,<5",
+    "pytest>=9.1.1,<10.0.0",
+    "pytest-randomly>=5.0.0",
+    "pytest-socket>=0.8.1",
+    "ruff>=0.17.0,<0.18.0",
+]
