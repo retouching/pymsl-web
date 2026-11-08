@@ -27,3 +27,6 @@ docs/superpowers/
 
 # The temporary folders of the e2e tests (tests/e2e/conftest.py)
 /.e2e-tmp/
+
+# The roadmap stays local (owner decision of 2026-11-08)
+/ROADMAP.md

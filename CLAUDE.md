@@ -122,7 +122,7 @@ Every file meets these rules. They hold in the tests too.
 
 - This file is the one source of the rules.
 - `README.md` stays short: what pymsl is, how to install it, one example. `docs/` holds one page per subject.
-- `ROADMAP.md`, in French, holds what is agreed but not built.
+- `ROADMAP.md`, in French, holds what is agreed but not built. It stays local: never committed.
 - The specs and plans of the superpowers skills never go in the repository.
 
 ## Git
