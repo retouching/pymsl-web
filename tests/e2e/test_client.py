@@ -98,3 +98,10 @@ class TestClient:
             text = client.session.export().model_dump_json()
         with MSLClient(configuration, session=MSLSession.restore_json(text)) as client:
             assert client.raw_request(b"two") == b"echo:token:two"
+
+    def test_requests_json(self, stack: Stack) -> None:
+        """Send a JSON payload and get the JSON answer of the server."""
+        with MSLClient(self.configuration(stack)) as client:
+            client.handshake()
+            answer = client.request({"version": 2, "params": ["é"]}, url=f"{stack.url()}/msl/json")
+            assert answer == {"auth": "cookies", "echo": {"version": 2, "params": ["é"]}}

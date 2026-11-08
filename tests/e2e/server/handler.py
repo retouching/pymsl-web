@@ -23,7 +23,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
         try:
-            self.reply(HTTPStatus.OK, self.server_state.answer(body))
+            json_echo = self.path.split("?")[0] == "/msl/json"
+            self.reply(HTTPStatus.OK, self.server_state.answer(body, json_echo=json_echo))
         except KeyError, TypeError, ValueError:
             self.reply(HTTPStatus.BAD_REQUEST, b"")
 

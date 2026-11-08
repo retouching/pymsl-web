@@ -64,12 +64,12 @@ class MSLServer:
         fields: Document = json.loads(base64.b64decode(str(token["tokendata"])))
         return fields
 
-    def answer(self, body: bytes) -> bytes:
-        """Answer a handshake or a request."""
+    def answer(self, body: bytes, *, json_echo: bool) -> bytes:
+        """Answer a handshake or a request, the echo of a request as JSON when `json_echo`."""
         objects = self.split(body)
         if "entityauthdata" in objects[0]:
             return self.handshake(objects[0])
-        return self.request(objects[0], objects[1:])
+        return self.request(objects[0], objects[1:], json_echo=json_echo)
 
     def handshake(self, outer: Document) -> bytes:
         """Give a master token and the session keys wrapped for the client's public key."""
@@ -115,8 +115,9 @@ class MSLServer:
             {"entityauthdata": SERVER_ENTITY, "errordata": self.crypto.b64(clear), "signature": signature}
         ).encode()
 
-    def request(self, outer: Document, chunks: list[Document]) -> bytes:
-        """Check a request under its master token and echo its data, the way the user authenticated in front."""
+    def request(self, outer: Document, chunks: list[Document], *, json_echo: bool) -> bytes:
+        """Check a request under its master token and echo its data with the way the user authenticated: in front
+        of the data, or as `{"auth", "echo"}` JSON when `json_echo`."""
         master_fields = self.read_token(outer["mastertoken"])
         serial_number = int(str(master_fields["serialnumber"]))
         session = self.sessions[serial_number]
@@ -164,9 +165,12 @@ class MSLServer:
             "headerdata": self.crypto.b64(envelope),
             "signature": self.crypto.b64(self.crypto.mac(session.hmac_key, envelope)),
         }
-        return json.dumps(answer).encode() + self.chunk(
-            session, reply_id, f"echo:{method}:".encode() + data, compression
+        echo = (
+            json.dumps({"auth": method, "echo": json.loads(data)}).encode()
+            if json_echo
+            else f"echo:{method}:".encode() + data
         )
+        return json.dumps(answer).encode() + self.chunk(session, reply_id, echo, compression)
 
     def authenticate(self, session: Session, header: Document) -> str | None:
         """Tell how the user of `header` authenticated: `token`, `cookies`, or None when refused."""
