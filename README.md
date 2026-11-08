@@ -7,6 +7,7 @@
 <p align="center">
   <img alt="Python 3.14" src="https://img.shields.io/badge/python-3.14-blue.svg">
   <img alt="uv" src="https://img.shields.io/badge/managed%20with-uv-DE5FE9.svg">
+  <img alt="License Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-green.svg">
 </p>
 
 pymsl-web, imported as `pymsl_web`, speaks MSL the way Netflix's web player does: a `NONE` entity authentication with
@@ -67,3 +68,8 @@ as a secret.
 ## Documentation
 
 - [Usage](docs/usage.md): the configuration, the handshake, the requests, the session and the errors.
+
+## License
+
+[Apache-2.0](LICENSE). pymsl-web ports code of [Netflix/msl](https://github.com/Netflix/msl), under the same
+license ([NOTICE](NOTICE)).
