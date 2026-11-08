@@ -42,7 +42,7 @@ class MSLClient:
         self.session = session if session is not None else MSLSession.new(sender, clock=clock)
         self.writer = MessageWriter()
         self.reader = MessageReader(
-            server=ServerCryptoContext.from_pem(configuration.server_public_key),
+            server=ServerCryptoContext.from_keys(configuration.server_public_keys),
             verify_signatures=configuration.verify_signatures,
         )
 

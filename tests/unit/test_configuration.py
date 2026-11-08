@@ -1,3 +1,5 @@
+import base64
+
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -41,13 +43,19 @@ class TestMSLConfiguration:
         with pytest.raises(ValidationError):
             self.build(verify_signatures="yes")
 
-    def test_reads_server_key(self) -> None:
-        """Accept a PEM RSA public key of the server."""
+    def test_reads_server_keys(self) -> None:
+        """Accept server keys as PEM bytes and as Base64 DER text."""
         key = rsa.generate_private_key(public_exponent=65537, key_size=2048).public_key()
         pem = key.public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
-        assert self.build(server_public_key=pem).server_public_key == pem
+        der = key.public_bytes(serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)
+        keys = (pem, base64.b64encode(der).decode())
+        assert self.build(server_public_keys=keys).server_public_keys == keys
+
+    def test_has_no_server_key_by_default(self) -> None:
+        """Default to no server key."""
+        assert self.build().server_public_keys == ()
 
     def test_refuses_bad_key(self) -> None:
-        """Refuse a server key that is not a PEM RSA public key."""
+        """Refuse a server key that is neither PEM nor Base64 DER of an RSA public key."""
         with pytest.raises(ValidationError, match="Server key"):
-            self.build(server_public_key=b"not a key")
+            self.build(server_public_keys=(b"not a key",))

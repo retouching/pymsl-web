@@ -20,7 +20,7 @@ application decides.
 | `encoder_formats` | the `encoderformats` of the capabilities | `("JSON",)` |
 | `renewable` | the `renewable` flag of every header | `True` |
 | `verify_signatures` | check the HMAC of the answers signed with the session keys | `True` |
-| `server_public_key` | the PEM RSA public key of the server, to check the handshake answer and the errors | none |
+| `server_public_keys` | the RSA public keys of the server, each PEM or Base64 SPKI DER; the handshake answer and the errors are accepted when one of them verifies their signature | `()`: not checked |
 
 An answer is read in GZIP or LZW whatever the capabilities announce.
 

@@ -26,14 +26,16 @@ class TestMessageReader:
     @staticmethod
     def reader(*, verify: bool = True, key: rsa.RSAPrivateKey | None = None) -> MessageReader:
         """Build a reader, with the public key of `key` as the server's when given."""
-        pem = (
-            None
+        keys = (
+            ()
             if key is None
-            else key.public_key().public_bytes(
-                serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo
+            else (
+                key.public_key().public_bytes(
+                    serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo
+                ),
             )
         )
-        return MessageReader(server=ServerCryptoContext.from_pem(pem), verify_signatures=verify)
+        return MessageReader(server=ServerCryptoContext.from_keys(keys), verify_signatures=verify)
 
     @staticmethod
     def message(*chunks: bytes, message_id: int = 8, signature: bytes | None = None) -> bytes:

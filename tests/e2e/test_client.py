@@ -61,12 +61,12 @@ class TestClient:
 
     def test_verifies_server(self, stack: Stack) -> None:
         """Handshake with the server's public key configured, and fail with another key."""
-        with MSLClient(self.configuration(stack, server_public_key=self.server_key(stack))) as client:
+        with MSLClient(self.configuration(stack, server_public_keys=(self.server_key(stack),))) as client:
             client.handshake()
             assert client.session.active
         other = rsa.generate_private_key(public_exponent=65537, key_size=2048).public_key()
         pem = other.public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
-        with MSLClient(self.configuration(stack, server_public_key=pem)) as client, pytest.raises(MSLMessageError):
+        with MSLClient(self.configuration(stack, server_public_keys=(pem,))) as client, pytest.raises(MSLMessageError):
             client.handshake()
 
     def test_raises_user_reauth(self, stack: Stack) -> None:

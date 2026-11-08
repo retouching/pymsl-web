@@ -21,14 +21,14 @@ class MSLConfiguration(BaseModel):
     encoder_formats: tuple[str, ...] = ("JSON",)
     renewable: bool = True
     verify_signatures: bool = True
-    server_public_key: bytes | None = None
+    server_public_keys: tuple[str | bytes, ...] = ()
 
-    @field_validator("server_public_key")
+    @field_validator("server_public_keys")
     @classmethod
-    def check_server_public_key(cls, value: bytes | None) -> bytes | None:
-        """Refuse a server key that is not a PEM RSA public key."""
+    def check_server_public_keys(cls, value: tuple[str | bytes, ...]) -> tuple[str | bytes, ...]:
+        """Refuse a server key that is neither PEM nor Base64 DER of an RSA public key."""
         try:
-            ServerCryptoContext.from_pem(value)
+            ServerCryptoContext.from_keys(value)
         except MSLCryptoError as error:
             raise ValueError(str(error)) from error
         return value
