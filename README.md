@@ -28,10 +28,13 @@ uv add ../pymsl-web
 ## Example
 
 ```python
+from curl_cffi import requests
+
 from pymsl_web import (
     AsymmetricWrappedKeyExchange,
     MSLClient,
     MSLConfiguration,
+    MSLSession,
     NetflixIDUserAuthentication,
     NoneEntityAuthentication,
 )
@@ -41,12 +44,25 @@ configuration = MSLConfiguration(
     entity_authentication=NoneEntityAuthentication(identity="NFCDCH-02-..."),
     key_exchange=AsymmetricWrappedKeyExchange(),
     user_authentication=NetflixIDUserAuthentication(netflix_id="...", secure_netflix_id="..."),
+    server_public_keys=("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...",),
 )
-with MSLClient(configuration) as client:
+http = requests.Session(impersonate="chrome")
+
+with MSLClient(configuration, http=http) as client:
     client.handshake()
     answer = client.request(b'{"version":2}')
     state = client.session.export().model_dump_json()
+
+with MSLClient(configuration, http=http, session=MSLSession.restore_json(state)) as client:
+    if client.session.expired:
+        client.handshake()
+    answer = client.request(b'{"version":2}')
 ```
+
+`server_public_keys` takes the RSA public keys of the server, PEM or Base64 DER: the handshake answer and the errors
+are then accepted only when one of them verifies their signature. The application gives its own curl_cffi session,
+with its proxy and headers, or lets pymsl-web build one. The exported state holds the session keys in clear: keep it
+as a secret.
 
 ## Documentation
 
