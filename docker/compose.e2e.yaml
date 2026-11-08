@@ -1,0 +1,19 @@
+# The throwaway e2e stack, one per pytest session (`pymsl-web-e2e-<hex>`, tests/e2e/conftest.py): the fake MSL
+# server, its port published on the loopback of the host. The built image takes the name of its project and
+# service, so that `down --rmi local` removes it. Nothing restarts by itself: a crash stays visible.
+name: pymsl-web-e2e
+services:
+  msl:
+    build:
+      context: ..
+      dockerfile: docker/e2e.Dockerfile
+    restart: "no"
+    ports:
+      - "127.0.0.1::8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+      start_interval: 1s

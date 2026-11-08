@@ -74,6 +74,12 @@ layers = [
 ]
 exhaustive = false
 
+[[tool.importlinter.contracts]]
+name = "the fake server never imports pymsl_web"
+type = "forbidden"
+source_modules = ["tests.e2e.server"]
+forbidden_modules = ["pymsl_web"]
+
 [tool.pytest]
 minversion = "9.0"
 # `uv run pytest` runs the unit tests alone, without Docker; the e2e tests start a throwaway Docker stack of their
