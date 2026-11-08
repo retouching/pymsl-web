@@ -55,6 +55,8 @@ Every file meets these rules. They hold in the tests too.
 - Every method and function has a docstring, in the imperative, saying what it does ("Keep the newest token.").
   Nothing else has one: no class, module or constant docstring.
 - No `#` comment, except `# noqa` and `# type: ignore` with their code.
+- No name starts with `_`: no private function, method, attribute or constant. Python's own dunders
+  (`__init__`, `__all__`) are the only exception.
 - Type everything; mypy runs in strict mode.
 - An acronym in a class name is upper case (`MSLClient`, `JWK`, `HTTPTransport`, `LZWCompression`).
 - An error message follows `message(subject, outcome, *causes)` (`utils/messages.py`): `Answer: invalid (header)`.
@@ -127,6 +129,7 @@ Every file meets these rules. They hold in the tests too.
 
 - Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `build:`, `chore:`), small and focused,
   in English; `!` and a `BREAKING CHANGE:` footer for a breaking change. No `Co-Authored-By` line.
+- The work happens on `master`; no development branch.
 - No push unless the owner asks.
 
 ## Working with the owner
