@@ -1,7 +1,7 @@
 # Usage
 
-pymsl has one entry point, `MSLClient`. It runs a handshake, sends requests and keeps an `MSLSession` that the
-application reads, exports and restores. pymsl never handshakes, retries or stores anything on its own: the
+pymsl-web has one entry point, `MSLClient`. It runs a handshake, sends requests and keeps an `MSLSession` that the
+application reads, exports and restores. pymsl-web never handshakes, retries or stores anything on its own: the
 application decides.
 
 ## Configuration
@@ -34,7 +34,7 @@ client.handshake(url="https://example.com/msl", params={"reqName": "manifest"})
 The handshake sends the sender in clear with a fresh RSA public key and gets a master token and the session keys.
 It sends no user authentication: the header is not encrypted. A handshake on a session that already has a master
 token replaces it and forgets the user ID token and the service tokens of the old one. `http=` gives a
-`curl_cffi.requests.Session` (or any object with the same `post`) to use instead of the one pymsl builds.
+`curl_cffi.requests.Session` (or any object with the same `post`) to use instead of the one pymsl-web builds.
 
 ## Requests
 
@@ -69,7 +69,7 @@ if client.session.expired:
 
 ## Errors
 
-Every error of pymsl derives from `PyMSLError`.
+Every error of pymsl-web derives from `PyMSLError`.
 
 | Error | When |
 | --- | --- |
@@ -79,9 +79,9 @@ Every error of pymsl derives from `PyMSLError`.
 | `MSLCryptoError` | a key or a ciphertext cannot be used |
 | `MSLSessionError` | a request without a session, or a state that cannot be restored |
 
-After an `MSLError`, pymsl forgets what the server refused, so the next call starts right:
+After an `MSLError`, pymsl-web forgets what the server refused, so the next call starts right:
 
-| Code | pymsl forgets |
+| Code | pymsl-web forgets |
 | --- | --- |
 | `ENTITY_REAUTH`, `ENTITYDATA_REAUTH` | the master token, the keys, the user ID token and the service tokens bound to them |
 | `USER_REAUTH`, `USERDATA_REAUTH`, `SSOTOKEN_REJECTED` | the user ID token and the service tokens bound to it |

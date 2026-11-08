@@ -1,6 +1,6 @@
-# pymsl
+# pymsl-web
 
-pymsl is a Python library, imported as `pymsl_web`, that implements the client side of Netflix's Message Security
+pymsl-web is a Python library, imported as `pymsl_web`, that implements the client side of Netflix's Message Security
 Layer (MSL) for the web player: the handshake (`NONE` entity authentication, `ASYMMETRIC_WRAPPED` key exchange), the
 requests (`NETFLIXID` user authentication, then the user ID token) and a session the application exports and
 restores. The reference is the JavaScript implementation of [Netflix/msl](https://github.com/Netflix/msl).
@@ -35,13 +35,13 @@ This file holds every rule of the project. There is no other rule page.
    concept. A utility that grows is split into a package.
 9. **The direction of the imports.** The packages form layers, from the top: `client`; `transport` and `session`;
    the schemes (`entityauth`, `userauth`, `keyexchange`) and `messages`; `tokens`; `crypto` and `compression`;
-   `utils`. A package imports only the layers below it. `enums` and `exceptions` import nothing of pymsl but
+   `utils`. A package imports only the layers below it. `enums` and `exceptions` import nothing of pymsl-web but
    `utils`; `configuration` imports the schemes and `enums`. import-linter checks this rule.
 10. **Everything is a class.** Functions are the methods of a class. Module functions exist only in `utils/`.
 11. **The configuration is strict pydantic models.** `MSLConfiguration` and the model of each scheme are
     `frozen=True, extra="forbid", strict=True`. There is no configuration file: the application builds them in code.
     A rule of a value is a validator of its model.
-12. **pymsl decides nothing for the application.** It never starts a handshake, renews a session or retries a
+12. **pymsl-web decides nothing for the application.** It never starts a handshake, renews a session or retries a
     request on its own, never waits between two requests, and never reads nor writes a file, a database or any
     storage: the session becomes data with `export()` and comes back with `restore()`.
 
@@ -51,7 +51,7 @@ Every file meets these rules. They hold in the tests too.
 
 - Every model is a pydantic model; no dataclass.
 - ruff bans the `dataclasses` module (TID251): a `dataclasses.replace` on a pydantic model passes mypy and fails at
-  run time. ruff bans starting a process too: pymsl starts none.
+  run time. ruff bans starting a process too: pymsl-web starts none.
 - Every method and function has a docstring, in the imperative, saying what it does ("Keep the newest token.").
   Nothing else has one: no class, module or constant docstring.
 - No `#` comment, except `# noqa` and `# type: ignore` with their code.
@@ -80,7 +80,7 @@ Every file meets these rules. They hold in the tests too.
 
 ## Tests
 
-- Two levels: the unit tests (`tests/unit/`) and the e2e tests (`tests/e2e/`). pymsl talks to no database: there
+- Two levels: the unit tests (`tests/unit/`) and the e2e tests (`tests/e2e/`). pymsl-web talks to no database: there
   is no integration level.
 - The unit tests run after each iteration of code; the e2e tests run once at the end of all the iterations of a
   piece of work. Each time, run the tests of what changed alone; the pre-push hook alone runs the whole unit suite.
@@ -91,7 +91,7 @@ Every file meets these rules. They hold in the tests too.
 - No test holds a token, a cookie or a key captured from Netflix: every one is made up by the test.
 - A test run removes everything it creates, even after a failure: its containers, networks, volumes and images,
   and its temporary files (`tmp_path_retention_policy = "none"`).
-- The owner checks pymsl by hand against the real web service. The owner's working code,
+- The owner checks pymsl-web by hand against the real web service. The owner's working code,
   `~/Téléchargements/MSL/` (outside the repository), is the reference of the real wire format.
 
 ### Unit tests
@@ -110,7 +110,7 @@ Every file meets these rules. They hold in the tests too.
 
 ### E2E tests
 
-- A test is a method of a class `Test<Feature>` marked `e2e`. It uses the public API of pymsl
+- A test is a method of a class `Test<Feature>` marked `e2e`. It uses the public API of pymsl-web
   (`from pymsl_web import ...`) and nothing else of it.
 - It talks to a fake MSL server that lives in `tests/e2e/server/` alone, runs in the stack and never imports
   `pymsl_web` (import-linter checks it).
@@ -121,7 +121,7 @@ Every file meets these rules. They hold in the tests too.
 ## Documents
 
 - This file is the one source of the rules.
-- `README.md` stays short: what pymsl is, how to install it, one example. `docs/` holds one page per subject.
+- `README.md` stays short: what pymsl-web is, how to install it, one example. `docs/` holds one page per subject.
 - `ROADMAP.md`, in French, holds what is agreed but not built. It stays local: never committed.
 - The specs and plans of the superpowers skills never go in the repository.
 

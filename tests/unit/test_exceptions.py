@@ -26,6 +26,6 @@ class TestMSLError:
         assert str(error) == "MSL: error 42"
 
     def test_derives_from_base(self) -> None:
-        """Derive every error of pymsl from PyMSLError."""
+        """Derive every error of pymsl-web from PyMSLError."""
         assert issubclass(MSLError, PyMSLError)
         assert issubclass(MSLMessageError, PyMSLError)

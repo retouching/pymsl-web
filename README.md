@@ -1,4 +1,4 @@
-<h1 align="center">pymsl</h1>
+<h1 align="center">pymsl-web</h1>
 
 <p align="center">
   The client side of Netflix's Message Security Layer (MSL), for the web player, in Python.
@@ -9,7 +9,7 @@
   <img alt="uv" src="https://img.shields.io/badge/managed%20with-uv-DE5FE9.svg">
 </p>
 
-pymsl, imported as `pymsl_web`, speaks MSL the way Netflix's web player does: a `NONE` entity authentication with
+pymsl-web, imported as `pymsl_web`, speaks MSL the way Netflix's web player does: a `NONE` entity authentication with
 the ESN as sender, an `ASYMMETRIC_WRAPPED` key exchange, and a user authenticated by the `NetflixId` and
 `SecureNetflixId` cookies of the browser (`NETFLIXID`) until the server gives a user ID token. It handshakes, sends
 requests and gives back their answers; the application decides when to handshake again and where to keep the
@@ -17,12 +17,12 @@ session.
 
 ## Install
 
-pymsl needs Python 3.14 and [uv](https://docs.astral.sh/uv/).
+pymsl-web needs Python 3.14 and [uv](https://docs.astral.sh/uv/).
 
-From the project of the application, with a checkout of pymsl beside it:
+From the project of the application, with a checkout of pymsl-web beside it:
 
 ```bash
-uv add ../pymsl
+uv add ../pymsl-web
 ```
 
 ## Example

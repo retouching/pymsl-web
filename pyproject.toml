@@ -33,17 +33,17 @@ select = ["E", "W", "F", "I", "B", "UP", "S", "SIM", "RUF", "PT", "SLF", "TC004"
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "dataclasses".msg = "Use a pydantic model (CLAUDE.md, Rules of the code)."
-"subprocess.run".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"subprocess.Popen".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"subprocess.call".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"subprocess.check_call".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"subprocess.check_output".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"subprocess.getoutput".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"subprocess.getstatusoutput".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"os.system".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"os.popen".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"asyncio.create_subprocess_exec".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
-"asyncio.create_subprocess_shell".msg = "pymsl starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.run".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.Popen".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.call".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.check_call".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.check_output".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.getoutput".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"subprocess.getstatusoutput".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"os.system".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"os.popen".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"asyncio.create_subprocess_exec".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
+"asyncio.create_subprocess_shell".msg = "pymsl-web starts no process (CLAUDE.md, Rules of the code)."
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "S603", "S607"]
