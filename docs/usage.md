@@ -45,8 +45,8 @@ answer: bytes = client.request(data, url="https://example.com/msl/licence", para
 A request sends `data` encrypted and signed with the session keys, compressed as configured, with the service
 tokens the server gave and the user: the `userauthdata` of `user_authentication` until the server gives a user ID
 token, then that token alone. It gives back the joined data of the answer. Reading the JSON of the service, and its
-own `"error"` key, is the application's work. The message ID moves on by one after each request, even when the
-answer fails.
+own `"error"` key, is the application's work. The message ID moves on by one after each request the server
+answered, even when the answer is an error; it stays when the server could not be reached.
 
 ## Session
 
