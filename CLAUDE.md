@@ -128,7 +128,8 @@ Every file meets these rules. They hold in the tests too.
 ## Git
 
 - Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `build:`, `chore:`), small and focused,
-  in English; `!` and a `BREAKING CHANGE:` footer for a breaking change. No `Co-Authored-By` line.
+  in English; `!` after the type for a breaking change, without a `BREAKING CHANGE:` footer. No `Co-Authored-By`
+  line.
 - The work happens on `master`; no development branch.
 - No push unless the owner asks.
 
