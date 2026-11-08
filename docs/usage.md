@@ -24,6 +24,32 @@ application decides.
 
 An answer is read in GZIP or LZW whatever the capabilities announce.
 
+## Signatures
+
+pymsl-web checks two kinds of signature:
+
+- The handshake answer and the error headers come in clear, signed with RSASSA-PKCS1-v1_5 SHA-256 by the server.
+  With `server_public_keys`, one of the keys must verify the signature, else the answer raises `MSLMessageError`.
+  Without keys, they are read unchecked. Netflix publishes its keys as Base64 SPKI DER (`MIIBIjANBgkqhkiG9w0B...`),
+  which the configuration takes as they are.
+- The answers to the requests are encrypted and signed with the HMAC-SHA256 of the session.
+  `verify_signatures=False` reads them unchecked.
+
+## HTTP session
+
+```python
+from curl_cffi import requests
+
+http = requests.Session(impersonate="chrome", proxy="http://127.0.0.1:8080")
+with MSLClient(configuration, http=http) as client:
+    ...
+```
+
+`http=` gives a `curl_cffi.requests.Session`, or any object with the same `post`, with its proxy, impersonation and
+headers. pymsl-web adds no header of its own. Without `http=`, the client builds a curl_cffi session and closes it
+with `close()` or at the end of a `with` block; a session the application gave stays open. The query parameters of a
+call (`params=`) are passed to `post` as a `dict`.
+
 ## Handshake
 
 ```python
@@ -33,8 +59,8 @@ client.handshake(url="https://example.com/msl", params={"reqName": "manifest"})
 
 The handshake sends the sender in clear with a fresh RSA public key and gets a master token and the session keys.
 It sends no user authentication: the header is not encrypted. A handshake on a session that already has a master
-token replaces it and forgets the user ID token and the service tokens of the old one. `http=` gives a
-`curl_cffi.requests.Session` (or any object with the same `post`) to use instead of the one pymsl-web builds.
+token replaces it and forgets the user ID token and the service tokens of the old one. A handshake that fails
+changes nothing in the session.
 
 ## Requests
 
@@ -55,10 +81,15 @@ answered, even when the answer is an error; it stays when the server could not b
 | `client.session.active` | whether the session has a master token and its keys |
 | `client.session.expired` | whether the master token expired, in server time (`True` without one) |
 | `client.session.renewable` | whether the master token entered its renewal window, in server time |
+| `client.session.master_token` | the master token: `serial_number`, `sequence_number`, `renewal_window` and `expiration` in seconds |
+| `client.session.user_id_token` | the user ID token once the server gave one, with its `profile_id` |
+| `client.session.clock.offset` | the gap in seconds between the server's time and the local one, from the last answer |
 | `client.session.export()` | an `MSLSessionState`, whose `model_dump_json()` is text |
 | `MSLSession.restore(state)`, `MSLSession.restore_json(text)` | the session again, for `MSLClient(configuration, session=...)` |
 
-The state holds the session keys in clear. The application keeps it where it wants and protects it as a secret.
+The state holds the session keys in clear. The application keeps it where it wants and protects it as a secret. A
+restored session belongs to its sender: `MSLClient` refuses it with `MSLSessionError` when the configured identity
+differs.
 
 ```python
 text = client.session.export().model_dump_json()
@@ -77,7 +108,7 @@ Every error of pymsl-web derives from `PyMSLError`.
 | `MSLTransportError` | the server could not be reached, or answered with an HTTP status outside 200–299 |
 | `MSLMessageError` | the answer is malformed, its message ID or sequence is wrong, or a signature does not match |
 | `MSLCryptoError` | a key or a ciphertext cannot be used |
-| `MSLSessionError` | a request without a session, or a state that cannot be restored |
+| `MSLSessionError` | a request without a session, a state that cannot be restored, or a restored session of another sender |
 
 After an `MSLError`, pymsl-web forgets what the server refused, so the next call starts right:
 
