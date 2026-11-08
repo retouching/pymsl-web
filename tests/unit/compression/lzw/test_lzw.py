@@ -4,7 +4,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from pymsl_web.compression.lzw import LZWCompression
+from pymsl_web.compression.lzw.lzw import LZWCompression
 from pymsl_web.exceptions import MSLMessageError
 
 LZW_VECTORS: Final = (

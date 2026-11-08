@@ -1,8 +1,8 @@
 from typing import ClassVar, Final
 
 from pymsl_web.compression.compression import MAX_DEFLATE_RATIO, Compression
-from pymsl_web.compression.lzw_reader import LZWReader
-from pymsl_web.compression.lzw_writer import LZWWriter
+from pymsl_web.compression.lzw.lzw_reader import LZWReader
+from pymsl_web.compression.lzw.lzw_writer import LZWWriter
 from pymsl_web.enums import CompressionAlgorithm
 from pymsl_web.exceptions import MSLMessageError
 from pymsl_web.utils.messages import message

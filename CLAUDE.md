@@ -15,7 +15,8 @@ This file holds every rule of the project. There is no other rule page.
    cannot be named in one noun, split the file.
 2. **One subject per folder.** A folder is named after one subject. When it holds files of several sub-subjects,
    each sub-subject is a sub-package (`keyexchange/asymmetric_wrapped/`, `entityauth/schemes/`). If the subject of
-   a folder cannot be named in one noun, split it.
+   a folder cannot be named in one noun, split it. A subject of one file is a module, a subject of several files is a
+   package: `compression/gzip.py` is one file, `compression/lzw/` holds the compression, its reader and its writer.
 3. **An object does its own work.** The data of an object and the operations that concern that object alone are
    methods of its class: a master token reads its fields and tells whether it expired
    (`MasterToken.parse()`, `MasterToken.is_expired()`).
@@ -85,8 +86,8 @@ Every file meets these rules. They hold in the tests too.
 - The unit tests run after each iteration of code; the e2e tests run once at the end of all the iterations of a
   piece of work. Each time, run the tests of what changed alone; the pre-push hook alone runs the whole unit suite.
 - A file of `pymsl_web/` comes with its unit tests in the commit that adds or moves it.
-- `tests/unit/` follows the tree of `pymsl_web/`: the tests of `pymsl_web/compression/lzw.py` live in
-  `tests/unit/compression/test_lzw.py`.
+- `tests/unit/` follows the tree of `pymsl_web/`: the tests of `pymsl_web/compression/lzw/lzw.py` live in
+  `tests/unit/compression/lzw/test_lzw.py`.
 - Each piece of work adds the e2e tests of what it changes.
 - No test holds a token, a cookie or a key captured from Netflix: every one is made up by the test.
 - A test run removes everything it creates, even after a failure: its containers, networks, volumes and images,
