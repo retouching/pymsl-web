@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from typing import Protocol
 
 
@@ -15,6 +14,6 @@ class HTTPAnswer(Protocol):
 
 
 class HTTPPoster(Protocol):
-    def post(self, url: str, *, params: Mapping[str, str] | None, data: bytes) -> HTTPAnswer:
+    def post(self, url: str, *, params: dict[str, str] | None, data: bytes) -> HTTPAnswer:
         """Post `data` to `url` with the query parameters `params`."""
         ...

@@ -1,7 +1,6 @@
 import base64
 import gzip
 import json
-from collections.abc import Mapping
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -47,7 +46,7 @@ class FakeServer(BaseModel):
         """Give the clear header of each message received."""
         return [post.header for post in self.posts]
 
-    def post(self, url: str, *, params: Mapping[str, str] | None, data: bytes) -> FakeAnswer:
+    def post(self, url: str, *, params: dict[str, str] | None, data: bytes) -> FakeAnswer:
         """Answer a handshake with a key response and a request with the echo of its data, as told."""
         if self.failure is not None:
             raise self.failure

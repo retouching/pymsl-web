@@ -1,5 +1,3 @@
-from collections.abc import Mapping
-
 import pytest
 from curl_cffi.requests.exceptions import ConnectionError as CurlConnectionError
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,7 +19,7 @@ class Poster(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def post(self, url: str, *, params: Mapping[str, str] | None, data: bytes) -> Response:
+    def post(self, url: str, *, params: dict[str, str] | None, data: bytes) -> Response:
         """Record the call and answer with the configured status."""
         if self.failure is not None:
             raise self.failure

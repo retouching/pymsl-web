@@ -1,6 +1,7 @@
 from typing import Final
 
 import pytest
+from curl_cffi import requests
 from curl_cffi.requests.exceptions import ConnectionError as CurlConnectionError
 
 from pymsl_web.client import MSLClient
@@ -203,3 +204,10 @@ class TestMSLClient:
         """Close the client at the end of a with block."""
         with MSLClient(CONFIGURATION, http=FakeServer()) as client:
             assert not client.session.active
+
+    def test_accepts_curl_session(self) -> None:
+        """Take a curl_cffi session of the application, typed as such, and leave it open."""
+        session = requests.Session()
+        with MSLClient(CONFIGURATION, http=session) as client:
+            assert not client.transport.owned
+        session.close()

@@ -27,7 +27,7 @@ class HTTPTransport:
         reached or answers a status outside 200-299."""
         host = urlsplit(url).hostname or url
         try:
-            answer = self.poster.post(url, params=params, data=body)
+            answer = self.poster.post(url, params=None if params is None else dict(params), data=body)
             status, content = answer.status_code, answer.content
         except OSError as error:
             raise MSLTransportError(message("MSL", "unreachable", host)) from error
