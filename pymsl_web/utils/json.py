@@ -11,12 +11,18 @@ def dump(value: JSONValue) -> bytes:
     return json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
-def load_object(data: bytes, *, context: str) -> JSONObject:
-    """Read one JSON object from `data`; raise ValueError naming `context` for anything else."""
+def load(data: bytes, *, context: str) -> JSONValue:
+    """Read one JSON value from `data`; raise ValueError naming `context` for anything else."""
     try:
-        value = json.loads(data.decode("utf-8"))
+        value: JSONValue = json.loads(data.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as error:
         raise ValueError(message(context, "invalid", "JSON expected")) from error
+    return value
+
+
+def load_object(data: bytes, *, context: str) -> JSONObject:
+    """Read one JSON object from `data`; raise ValueError naming `context` for anything else."""
+    value = load(data, context=context)
     if not isinstance(value, dict):
         raise ValueError(message(context, "invalid", "a JSON object expected"))
     return value

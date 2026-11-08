@@ -13,11 +13,13 @@ from pymsl_web.exceptions import (
 from pymsl_web.keyexchange import AsymmetricWrappedKeyExchange, KeyExchange
 from pymsl_web.session import MSLSession, MSLSessionState
 from pymsl_web.userauth import NetflixIDUserAuthentication, UserAuthentication
+from pymsl_web.utils.json import JSONValue
 
 __all__ = [
     "AsymmetricWrappedKeyExchange",
     "CompressionAlgorithm",
     "EntityAuthentication",
+    "JSONValue",
     "KeyExchange",
     "MSLClient",
     "MSLConfiguration",

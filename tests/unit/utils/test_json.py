@@ -1,6 +1,6 @@
 import pytest
 
-from pymsl_web.utils.json import dump, load_object, split_objects
+from pymsl_web.utils.json import dump, load, load_object, split_objects
 
 
 class TestJSON:
@@ -43,3 +43,12 @@ class TestJSON:
     def test_splits_empty(self) -> None:
         """Give no object for an empty body."""
         assert split_objects(b" \n", context="Answer") == []
+
+    def test_loads_any_value(self) -> None:
+        """Read any JSON value, not only an object."""
+        assert load(b'[1,"a",null]', context="Answer") == [1, "a", None]
+
+    def test_refuses_not_json(self) -> None:
+        """Raise ValueError naming the context for bytes that are not JSON."""
+        with pytest.raises(ValueError, match=r"^Answer: invalid"):
+            load(b"echo:", context="Answer")

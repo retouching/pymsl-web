@@ -15,6 +15,7 @@ from pymsl_web.session.session import MSLSession
 from pymsl_web.tokens.master_token import MasterToken
 from pymsl_web.transport.http_poster import HTTPPoster
 from pymsl_web.transport.http_transport import HTTPTransport
+from pymsl_web.utils.json import JSONValue, dump, load
 from pymsl_web.utils.messages import message
 
 ENTITY_REAUTH_CODES: Final = frozenset({MSLResponseCode.ENTITY_REAUTH, MSLResponseCode.ENTITYDATA_REAUTH})
@@ -103,7 +104,18 @@ class MSLClient:
         master_token = MasterToken.parse(response.get("mastertoken"))
         self.session.start(master_token, keys, answer.header)
 
-    def request(self, data: bytes, *, url: str | None = None, params: Mapping[str, str] | None = None) -> bytes:
+    def request(
+        self, payload: JSONValue, *, url: str | None = None, params: Mapping[str, str] | None = None
+    ) -> JSONValue:
+        """Send `payload` as compact JSON under the session and give the JSON of the answer; raise MSLMessageError
+        for an answer that is not JSON, and the errors of `raw_request`."""
+        answer = self.raw_request(dump(payload), url=url, params=params)
+        try:
+            return load(answer, context="Answer")
+        except ValueError as error:
+            raise MSLMessageError(str(error)) from error
+
+    def raw_request(self, data: bytes, *, url: str | None = None, params: Mapping[str, str] | None = None) -> bytes:
         """Send `data` under the session and give the data of the answer; raise MSLSessionError without a session,
         and the MSLError of the server after forgetting what it refused."""
         session = self.session

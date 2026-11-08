@@ -70,15 +70,15 @@ class TestMSLClient:
     def test_returns_data(self) -> None:
         """Give back the joined, decompressed data of the answer."""
         server = FakeServer()
-        assert self.started(server).request(b"hello") == b"echo:hello"
+        assert self.started(server).raw_request(b"hello") == b"echo:hello"
         assert server.posts[-1].data == b"hello"
 
     def test_sends_cookies_then_token(self) -> None:
         """Send NETFLIXID until the server gives a user ID token, then the token alone."""
         server = FakeServer(user_id_token=Tokens.user_id_token())
         client = self.started(server)
-        client.request(b"one")
-        client.request(b"two")
+        client.raw_request(b"one")
+        client.raw_request(b"two")
         assert server.headers[-2]["userauthdata"] == COOKIES
         assert "useridtoken" not in server.headers[-2]
         assert server.headers[-1]["useridtoken"] == Tokens.user_id_token()
@@ -88,17 +88,17 @@ class TestMSLClient:
         """Send back the service tokens the server gave."""
         server = FakeServer(service_tokens=[Tokens.service_token("cad")])
         client = self.started(server)
-        client.request(b"one")
+        client.raw_request(b"one")
         assert "servicetokens" not in server.headers[-1]
-        client.request(b"two")
+        client.raw_request(b"two")
         assert server.headers[-1]["servicetokens"] == [Tokens.service_token("cad")]
 
     def test_moves_message_id(self) -> None:
         """Send each request with the message ID after the previous one's."""
         server = FakeServer()
         client = self.started(server)
-        client.request(b"one")
-        client.request(b"two")
+        client.raw_request(b"one")
+        client.raw_request(b"two")
         first, second = server.headers[-2]["messageid"], server.headers[-1]["messageid"]
         assert isinstance(first, int)
         assert second == first + 1
@@ -107,7 +107,7 @@ class TestMSLClient:
         """Raise MSLSessionError for a request before any handshake, and post nothing."""
         server = FakeServer()
         with pytest.raises(MSLSessionError):
-            self.client(server).request(b"one")
+            self.client(server).raw_request(b"one")
         assert server.posts == []
 
     @pytest.mark.parametrize(
@@ -126,11 +126,11 @@ class TestMSLClient:
         """Raise MSLError, forget what the reference forgets for its code, and move the message ID on by 1."""
         server = FakeServer(user_id_token=Tokens.user_id_token())
         client = self.started(server)
-        client.request(b"one")
+        client.raw_request(b"one")
         before = client.session.message_id
         server.error_code = code
         with pytest.raises(MSLError) as raised:
-            client.request(b"two")
+            client.raw_request(b"two")
         assert raised.value.code is code
         assert (client.session.master_token is not None) is master_token_kept
         assert (client.session.user_id_token is not None) is user_id_token_kept
@@ -140,12 +140,12 @@ class TestMSLClient:
         """Send NETFLIXID again after the server refused the user ID token."""
         server = FakeServer(user_id_token=Tokens.user_id_token())
         client = self.started(server)
-        client.request(b"one")
+        client.raw_request(b"one")
         server.error_code = MSLResponseCode.USER_REAUTH
         with pytest.raises(MSLError):
-            client.request(b"two")
+            client.raw_request(b"two")
         server.error_code = None
-        client.request(b"three")
+        client.raw_request(b"three")
         assert server.headers[-1]["userauthdata"] == COOKIES
 
     def test_keeps_session_on_bad_answer(self) -> None:
@@ -156,7 +156,7 @@ class TestMSLClient:
         server.message_id_shift = 2
         server.user_id_token = Tokens.user_id_token()
         with pytest.raises(MSLMessageError, match=r"message ID"):
-            client.request(b"one")
+            client.raw_request(b"one")
         after = client.session.export()
         assert after.model_copy(update={"message_id": before.message_id}) == before
 
@@ -166,7 +166,7 @@ class TestMSLClient:
         client = self.started(server)
         server.hmac_tampered = True
         with pytest.raises(MSLMessageError):
-            client.request(b"one")
+            client.raw_request(b"one")
 
     def test_skips_hmac_when_off(self) -> None:
         """Read an answer whose HMAC does not match when `verify_signatures` is off."""
@@ -175,7 +175,7 @@ class TestMSLClient:
         client = self.client(server, configuration)
         client.handshake()
         server.hmac_tampered = True
-        assert client.request(b"one") == b"echo:one"
+        assert client.raw_request(b"one") == b"echo:one"
 
     def test_raises_transport_error(self) -> None:
         """Raise MSLTransportError and keep the message ID when the server cannot be reached."""
@@ -184,7 +184,7 @@ class TestMSLClient:
         before = client.session.message_id
         server.failure = CurlConnectionError("down")
         with pytest.raises(MSLTransportError):
-            client.request(b"one")
+            client.raw_request(b"one")
         assert client.session.message_id == before
 
     def test_refuses_other_sender(self) -> None:
@@ -197,7 +197,7 @@ class TestMSLClient:
         server = FakeServer()
         text = self.started(server).session.export().model_dump_json()
         client = MSLClient(CONFIGURATION, http=server, session=MSLSession.restore_json(text))
-        assert client.request(b"again") == b"echo:again"
+        assert client.raw_request(b"again") == b"echo:again"
         assert len(server.posts) == 2
 
     def test_works_as_context_manager(self) -> None:
@@ -211,3 +211,16 @@ class TestMSLClient:
         with MSLClient(CONFIGURATION, http=session) as client:
             assert not client.transport.owned
         session.close()
+
+    def test_requests_json(self) -> None:
+        """Send the payload as compact JSON and give the JSON of the answer."""
+        server = FakeServer(echo_prefix=b"")
+        answer = self.started(server).request({"version": 2, "params": ["a", "é"]})
+        assert server.posts[-1].data == '{"version":2,"params":["a","é"]}'.encode()
+        assert answer == {"version": 2, "params": ["a", "é"]}
+
+    def test_refuses_non_json_answer(self) -> None:
+        """Raise MSLMessageError when the answer of a JSON request is not JSON."""
+        server = FakeServer()
+        with pytest.raises(MSLMessageError, match=r"^Answer: invalid"):
+            self.started(server).request({"version": 2})

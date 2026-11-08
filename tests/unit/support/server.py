@@ -40,6 +40,7 @@ class FakeServer(BaseModel):
     key_response: bool = True
     user_id_token: JSONObject | None = None
     service_tokens: list[JSONValue] = Field(default_factory=list)
+    echo_prefix: bytes = b"echo:"
 
     @property
     def headers(self) -> list[JSONObject]:
@@ -106,7 +107,8 @@ class FakeServer(BaseModel):
         return base64.b64encode(key.encrypt(json.dumps(jwk).encode(), oaep)).decode()
 
     def echo(self, message_id: int, data: bytes) -> bytes:
-        """Build the answer of a request: its header under the master token and one chunk holding `echo:<data>`."""
+        """Build the answer of a request: its header under the master token and one chunk holding its data after
+        `echo_prefix`."""
         fields: JSONObject = {"messageid": message_id, "timestamp": self.timestamp, "sender": "Netflix"}
         if self.user_id_token is not None:
             fields["useridtoken"] = self.user_id_token
@@ -116,4 +118,6 @@ class FakeServer(BaseModel):
         header = self.answers.header(
             fields, master_token=Tokens.master_token(serial_number=self.serial_number), signature=signature
         )
-        return Answers.body(header, self.answers.chunk(b"echo:" + data, message_id=message_id, compression="GZIP"))
+        return Answers.body(
+            header, self.answers.chunk(self.echo_prefix + data, message_id=message_id, compression="GZIP")
+        )

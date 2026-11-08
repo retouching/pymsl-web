@@ -6,6 +6,7 @@ PUBLIC_NAMES: Final = (
     "AsymmetricWrappedKeyExchange",
     "CompressionAlgorithm",
     "EntityAuthentication",
+    "JSONValue",
     "KeyExchange",
     "MSLClient",
     "MSLConfiguration",
