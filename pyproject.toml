@@ -65,12 +65,12 @@ root_packages = ["pymsl_web", "tests"]
 name = "the layers of pymsl_web"
 type = "layers"
 layers = [
-    "(pymsl_web.client)",
-    "(pymsl_web.transport) | (pymsl_web.session)",
-    "(pymsl_web.entityauth) | (pymsl_web.userauth) | (pymsl_web.keyexchange) | (pymsl_web.messages)",
-    "(pymsl_web.tokens)",
-    "(pymsl_web.crypto) | (pymsl_web.compression)",
-    "(pymsl_web.utils)",
+    "pymsl_web.client",
+    "pymsl_web.transport | pymsl_web.session",
+    "pymsl_web.entityauth | pymsl_web.userauth | pymsl_web.keyexchange | pymsl_web.messages",
+    "pymsl_web.tokens",
+    "pymsl_web.crypto | pymsl_web.compression",
+    "pymsl_web.utils",
 ]
 exhaustive = false
 

@@ -36,6 +36,14 @@ class Answers(BaseModel):
         envelope = {"keyid": self.key_id, "iv": self.b64(iv), "ciphertext": self.b64(ciphertext), "sha256": "AA=="}
         return json.dumps(envelope).encode()
 
+    def decrypt(self, envelope: bytes) -> bytes:
+        """Decrypt a V1 envelope as the server does."""
+        document = json.loads(envelope)
+        iv, ciphertext = base64.b64decode(document["iv"]), base64.b64decode(document["ciphertext"])
+        decryptor = Cipher(algorithms.AES(self.encryption_key), modes.CBC(iv)).decryptor()
+        unpadder = padding.PKCS7(128).unpadder()
+        return unpadder.update(decryptor.update(ciphertext) + decryptor.finalize()) + unpadder.finalize()
+
     def mac(self, data: bytes) -> bytes:
         """Sign `data` with the HMAC-SHA256 of the session."""
         return hmac.new(self.hmac_key, data, hashlib.sha256).digest()
